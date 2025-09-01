@@ -63,7 +63,6 @@ fun BatteryTemperatureScreen(
     var chargerData by remember { mutableStateOf<chargeResponse?>(null) }
     var showDialog by remember { mutableStateOf(false) }
     var isToHot by remember { mutableStateOf(false) }
-    val temperatureHistory = remember { mutableStateListOf("32°C", "33°C", "34°C") }
     var showAlert by remember { mutableStateOf(false) }
     var selectedModuleHistory by remember { mutableStateOf<List<String>>(emptyList()) }
     var isHistoryDialogVisible by remember { mutableStateOf(false) }
@@ -127,10 +126,10 @@ fun BatteryTemperatureScreen(
                 )
             }
 
-            if ((temperatureData1?.module_temp ?: 0f) >= -10F
-                || (temperatureData2?.module_temp ?: 0f) >= -10F
-                || (temperatureData3?.module_temp ?: 0f) >= -10F
-                || (temperatureData4?.module_temp ?: 0f) >= -10F)
+            if ((temperatureData1?.module_temp ?: 0f) <= -10F
+                || (temperatureData2?.module_temp ?: 0f) <= -10F
+                || (temperatureData3?.module_temp ?: 0f) <= -10F
+                || (temperatureData4?.module_temp ?: 0f) <= -10F)
             {
                 showDialog = true
                 isToHot = false

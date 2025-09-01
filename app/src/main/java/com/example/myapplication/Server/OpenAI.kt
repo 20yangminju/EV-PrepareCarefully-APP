@@ -9,23 +9,35 @@ import retrofit2.http.POST
 import retrofit2.http.GET
 import retrofit2.http.Query
 import retrofit2.Call
+import okhttp3.Interceptor
 
 // OpenAI API 인터페이스 정의
 
 interface OpenAIApi {
-    @Headers("Authorization: Bearer ${BuildConfig.OPENAI_API_KEY}") // BuildConfig 직접 사용
-    @POST("v1/chat/completions")
-    suspend fun sendMessage(@Body request: ChatRequest): ChatResponse
+    @POST("v1/responses")
+    suspend fun createResponse(@Body request: ResponsesRequest): ResponsesResponse
 }
+
 
 // Retrofit 인스턴스 생성
 object RetrofitInstance {
-    private val loggingInterceptor = HttpLoggingInterceptor().apply {
+    private val logging = HttpLoggingInterceptor().apply {
+        // 배포 시 Level.NONE 권장
         level = HttpLoggingInterceptor.Level.BODY
     }
 
+    // 공통 헤더 인터셉터
+    private val authInterceptor = Interceptor { chain ->
+        val req = chain.request().newBuilder()
+            .addHeader("Authorization", "Bearer ${BuildConfig.OPENAI_API_KEY}")
+            .addHeader("Content-Type", "application/json")
+            .build()
+        chain.proceed(req)
+    }
+
     private val client = OkHttpClient.Builder()
-        .addInterceptor(loggingInterceptor)
+        .addInterceptor(authInterceptor)
+        .addInterceptor(logging)
         .build()
 
     val api: OpenAIApi by lazy {

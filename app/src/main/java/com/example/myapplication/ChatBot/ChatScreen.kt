@@ -1,12 +1,13 @@
 package com.example.myapplication.ChatBot
 
-import ChatRequest
-import Message
 import Place
+import PromptRef
+import ResponsesRequest
 import RetrofitInstance
 import android.Manifest
 import android.content.pm.PackageManager
 import android.location.Location
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -47,6 +48,7 @@ fun ChatScreen(
     val repairShops = remember { mutableStateOf<List<Place>>(emptyList()) }
     val isLoading = remember { mutableStateOf(true ) }
     val errorMessage = remember { mutableStateOf<String?>(null) }
+
 
 
 
@@ -95,7 +97,8 @@ fun ChatScreen(
                     errorMessage.value = error
                     isLoading.value =false
                 })
-            println(currentLocation)
+
+            firstMessage = true
         }
 
 
@@ -216,60 +219,72 @@ fun ChatScreen(
 }
 
 // GPT API 호출 함수 (기존처럼 정의하되 초기 프롬프트 포함)
-suspend fun sendMessageToGPT(userMessage: String, nearShops: List<Place> ): String {
-    return try {
-        // 요청 데이터 생성
-        val messages = mutableListOf<Message>()
+suspend fun sendMessageToGPT(userMessage: String, nearShops: List<Place>): String {
+    // (1) 정비소 목록 상한 + 요약
+    val limit = 5
+    val trimmed = nearShops.take(limit)
+    val shopsText = if (trimmed.isNotEmpty()) {
+        val base = trimmed.joinToString("\n") { "- ${it.name} | ${it.vicinity}" }
+        val extra = nearShops.size - trimmed.size
+        if (extra > 0) "$base\n(외 ${extra}곳)" else base
+    } else {
+        "현재 주변에 정비소가 없습니다."
+    }
+//
 
-        val shopDetails = if (nearShops.isNotEmpty()){
-            nearShops.joinToString("\n") {"${it.name} : ${it.vicinity}"}
-        }
-        else {
-            "현재 주변에 정비소가 없습니다."
-        }
+    val inputText = buildString {
+        appendLine("사용자 질문: ${userMessage.trim()}")
+        appendLine("정비소 목록:")
+        append(shopsText)
+    }
 
-        if(firstMessage){
-            messages.add(
-                Message(
-                    role = "system", content =
-                    "당신은 전기차 어플리케이션 전용 챗봇입니다." +
-                            "배터리 온도 관련 질문: '앱 메인 화면의 배터리 온도 버튼'에서 확인할 수 있다고 답변하십시오. " +
-                            "환경설정 관련 질문: '우측 상단 톱니바퀴 아이콘'을 통해 접근 가능하다고 안내하십시오. " +
-                            "정비소 관련 질문 : $shopDetails 을 그대로 출력하십시오 " +
-                            "답변이 어렵다면 '죄송합니다. 명령을 이해하지 못했어요.'라고 답변하십시오."
-                )
+    // (3) 요청 본문 (Responses API)
+    val request = ResponsesRequest(
+        model = "gpt-5-nano",
+        prompt = PromptRef( // 대시보드 Prompt ID/버전
+            id = "pmpt_68b57ad3d9908195bcd155d501c1393d03266771c39cca3e",
+            version = "18", // 또는 "latest"
+            variables = mapOf(
+                "user_message" to userMessage.trim(),
+                "near_shops" to shopsText
             )
-            firstMessage = false
+        ),
+        max_output_tokens = 2000 )
+
+    // (4) 호출 + 응답 파싱
+    return try {
+        val resp = RetrofitInstance.api.createResponse(request)
+
+        // ✅ output[0].content[0].text에서 텍스트 추출
+        var text = resp.output
+            ?.firstOrNull()
+            ?.content
+            ?.firstOrNull { it.type == "output_text" }
+            ?.text
+            ?.trim()
+
+        if (text.isNullOrBlank()) {
+            text = resp.output.orEmpty()
+                .filter { it.type == "message" }
+                .flatMap { it.content.orEmpty() }
+                .filter { it.type == "output_text" }
+                .mapNotNull { it.text }
+                .joinToString("")
+                .trim()
+                .ifEmpty { null }
         }
 
-
-        // 사용자 메시지 추가
-        messages.add(Message(role = "user", content = userMessage))
-
-        val request = ChatRequest(
-            model = "gpt-3.5-turbo",
-            messages = messages,
-            max_tokens = 1000
-        )
-
-
-
-
-
-        // API 호출 및 응답 받기
-        val response = RetrofitInstance.api.sendMessage(request)
-        println("API Response: $response")
-
-        // 응답에서 첫 번째 메시지의 내용을 가져옴
-        response.choices.firstOrNull()?.message?.content?.trim() ?: "No response from GPT"
-
+        text ?: "죄송합니다. 명령을 이해하지 못했어요."
     } catch (e: HttpException) {
+        val body = e.response()?.errorBody()?.string()
         if (e.code() == 429) {
             val retryAfter = e.response()?.headers()?.get("Retry-After")
-            "Too Many Requests: Retry after $retryAfter seconds."
+            "요청이 많아요. ${retryAfter ?: "잠시"} 후 다시 시도해주세요. ($body)"
         } else {
-            "HTTP Error: ${e.code()} - ${e.message()}"
+            "HTTP 오류: ${e.code()} ${e.message()} / $body"
         }
+    } catch (e: Exception) {
+        "요청 처리 중 오류가 발생했어요. (${e.message})"
     }
 }
 

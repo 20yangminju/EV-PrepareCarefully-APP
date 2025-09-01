@@ -134,20 +134,20 @@ fun CellBalanceStatus(safePercentage: Float, hasCriticalCells: Boolean) {
                 Color(0xFFF44336) // 빨간색
             )
         }
-//        safePercentage >= 70 -> {
-//            Triple(
-//                Icons.Default.CheckCircle,
-//                "셀 밸런스가 안전하게 유지되고 있습니다!",
-//                Color(0xFF4CAF50) // 초록색
-//            )
-//        }
-//        safePercentage > 50 && safePercentage < 70 -> {
-//            Triple(
-//                Icons.Default.Info,
-//                "셀 밸런스의 관리가 필요합니다.",
-//                Color(0xFFFFC107) // 노란색
-//            )
-//        }
+        safePercentage >= 70 -> {
+            Triple(
+                Icons.Default.CheckCircle,
+                "셀 밸런스가 안전하게 유지되고 있습니다!",
+                Color(0xFF4CAF50) // 초록색
+            )
+        }
+        safePercentage > 50 && safePercentage < 70 -> {
+            Triple(
+                Icons.Default.Info,
+                "셀 밸런스의 관리가 필요합니다.",
+                Color(0xFFFFC107) // 노란색
+            )
+        }
         else -> {
             Triple(
                 Icons.Default.CheckCircle,

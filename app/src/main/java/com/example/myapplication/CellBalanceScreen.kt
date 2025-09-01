@@ -45,13 +45,16 @@ fun CellBalanceScreen(
         viewModel.fetchCellData("888777", 0 ..9)
     }
     val cells by viewModel.cells.collectAsState()
-    val safePercentage = cells.count { it.voltageDeviation <= 20 }.toFloat() / cells.size * 100
-    val hasCriticalCells = cells.any { it.voltageDeviation < 3.0f } // 하나라도 기준치 이하 확인
+    val displayCells = if (cells.isEmpty()) List(10) { index -> CellData(index = index, voltageDeviation = 0f) } else cells
+    val safePercentage = if (displayCells.isNotEmpty()) {
+        displayCells.count { it.voltageDeviation <= 20 }.toFloat() / displayCells.size * 100f
+    } else 0f
+    val hasCriticalCells = displayCells.any { it.voltageDeviation < 3.0f }
     val context = LocalContext.current
 
     // 셀 밸런스가 틀어졌을 때 알림
-    LaunchedEffect(safePercentage) {
-        if (hasCriticalCells) {
+    LaunchedEffect(safePercentage, hasCriticalCells) {
+        if (cells.isNotEmpty() && hasCriticalCells) {
             createNotification(context, notificationViewModel, status = 2)
         }
     }
@@ -115,7 +118,7 @@ fun CellBalanceScreen(
                     .padding(innerPadding)
                     .padding(16.dp)
             ) {
-                CellGrid(cells = cells)
+                CellGrid(cells = displayCells)
             }
         }
     )

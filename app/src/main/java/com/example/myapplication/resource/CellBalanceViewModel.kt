@@ -6,8 +6,10 @@ import kotlinx.coroutines.launch
 import com.example.myapplication.network.RetrofitInstance
 
 class CellBalanceViewModel : ViewModel() {
-    private val _cells = MutableStateFlow<List<CellData>>(emptyList())
+    private val _cells = MutableStateFlow<List<CellData>>(List(97) { idx -> CellData(index = idx, voltageDeviation = 0f) })
     val cells: StateFlow<List<CellData>> get() = _cells
+
+    private fun defaultCells(size: Int = 97): List<CellData> = List(size) { idx -> CellData(index = idx, voltageDeviation = 0f) }
 
     fun fetchCellData(deviceNumber: String, tenNumRange: IntRange) {
         viewModelScope.launch {
@@ -20,9 +22,19 @@ class CellBalanceViewModel : ViewModel() {
 
                     cellDataList.addAll(voltageData)
                 }
-                _cells.value = cellDataList.take(98)
+                val merged = cellDataList
+                    .distinctBy { it.index }
+                    .sortedBy { it.index }
+
+                val finalList = run {
+                    val byIndex = merged.associateBy { it.index }
+                    (0 until 97).map { idx -> byIndex[idx] ?: CellData(index = idx, voltageDeviation = 0f) }
+                }
+
+                _cells.value = finalList
             } catch (e: Exception) {
                 e.printStackTrace()
+                _cells.value = defaultCells()
             }
         }
     }

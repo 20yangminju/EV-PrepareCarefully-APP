@@ -8,7 +8,7 @@ data class ResponsesRequest(
 // ✅ 템플릿 참조 (대시보드 Prompt ID)
 data class PromptRef(
     val id: String = "pmpt_68b55f84d4c08190858e719b32ca2a0c0b080deca7eb79c8",  // 대시보드에서 발급된 Prompt ID
-    val version: String = "18",  // 특정 버전에 고정하려면 버전 문자열로
+    val version: String = "21",  // 특정 버전에 고정하려면 버전 문자열로
     val variables: Map<String, String>? = null
 )
 

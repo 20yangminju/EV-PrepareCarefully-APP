@@ -10,6 +10,7 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 import retrofit2.Call
 import okhttp3.Interceptor
+import org.intellij.lang.annotations.Language
 
 // OpenAI API 인터페이스 정의
 
@@ -38,6 +39,10 @@ object RetrofitInstance {
     private val client = OkHttpClient.Builder()
         .addInterceptor(authInterceptor)
         .addInterceptor(logging)
+        .connectTimeout(15, java.util.concurrent.TimeUnit.SECONDS)  // TCP 연결
+        .writeTimeout(30, java.util.concurrent.TimeUnit.SECONDS)    // 요청 업로드
+        .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)     // 응답 대기
+        .callTimeout(60, java.util.concurrent.TimeUnit.SECONDS)     // 호출 전체 상한
         .build()
 
     val api: OpenAIApi by lazy {
@@ -54,6 +59,9 @@ data class PlacesResponse(
     val results: List<Place>
 )
 
+
+
+
 data class Place(
     val name: String,
     val vicinity: String
@@ -63,8 +71,9 @@ interface GooglePlacesApi {
     @GET("nearbysearch/json")
     fun getNearbyPlaces(
         @Query("location") location: String,
-        @Query("radius") radius: Int,
+        @Query("rankby") rankby: String,
         @Query("type") type: String,
+        @Query("language") language: String,
         @Query("key") apiKey: String
     ): Call<PlacesResponse>
 }

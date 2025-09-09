@@ -232,24 +232,19 @@ suspend fun sendMessageToGPT(userMessage: String, nearShops: List<Place>): Strin
     }
 //
 
-    val inputText = buildString {
-        appendLine("사용자 질문: ${userMessage.trim()}")
-        appendLine("정비소 목록:")
-        append(shopsText)
-    }
 
     // (3) 요청 본문 (Responses API)
     val request = ResponsesRequest(
         model = "gpt-5-nano",
         prompt = PromptRef( // 대시보드 Prompt ID/버전
             id = "pmpt_68b57ad3d9908195bcd155d501c1393d03266771c39cca3e",
-            version = "18", // 또는 "latest"
+            version = "21", // 또는 "latest"
             variables = mapOf(
                 "user_message" to userMessage.trim(),
                 "near_shops" to shopsText
             )
         ),
-        max_output_tokens = 2000 )
+        max_output_tokens = 4000 )
 
     // (4) 호출 + 응답 파싱
     return try {

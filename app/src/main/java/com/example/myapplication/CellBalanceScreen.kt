@@ -46,11 +46,19 @@ fun CellBalanceScreen(
         viewModel.fetchCellData("888777", 0 ..9)
     }
     val cells by viewModel.cells.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState() // 또는 collectAsStateWithLifecycle()
+
+    Log.d("LoadingCheck1", "${isLoading}")
+
+
+
     val displayCells = if (cells.isEmpty()) List(10) { index -> CellData(index = index, voltageDeviation = 0f) } else cells
     val safePercentage = if (displayCells.isNotEmpty()) {
         displayCells.count { it.voltageDeviation <= 20 }.toFloat() / displayCells.size * 100f
     } else 0f
-    val hasCriticalCells = displayCells.any { it.voltageDeviation < 3.0f }
+    val hasCriticalCells = !isLoading && cells.any { it.voltageDeviation < 2f }
+
+
     val context = LocalContext.current
 
     // 셀 밸런스가 틀어졌을 때 알림
@@ -102,7 +110,7 @@ fun CellBalanceScreen(
                     color = Colors.Title,
                     modifier = Modifier.padding(16.dp)
                 )
-                CellBalanceStatus(safePercentage, hasCriticalCells = hasCriticalCells)
+                CellBalanceStatus(safePercentage, hasCriticalCells = hasCriticalCells, isLoading)
                 Spacer(modifier = Modifier.height(15.dp))
             }
         },
@@ -119,15 +127,25 @@ fun CellBalanceScreen(
                     .padding(innerPadding)
                     .padding(16.dp)
             ) {
-                CellGrid(cells = displayCells)
+                CellGrid(cells = displayCells, isLoading)
             }
         }
     )
 }
 
 @Composable
-fun CellBalanceStatus(safePercentage: Float, hasCriticalCells: Boolean) {
+fun CellBalanceStatus(safePercentage: Float, hasCriticalCells: Boolean, isLoading: Boolean) {
+    Log.d("LoadingCheck", "${isLoading}")
     val (icon, message, color) = when {
+
+        isLoading -> {
+            Triple(
+                Icons.Default.CheckCircle,
+                "셀 데이터를 불러오는 중입니다!",
+                Color(0xFF4CAF50)
+            )
+        }
+
         hasCriticalCells -> {
             Triple(
                 Icons.Default.Warning,
@@ -135,6 +153,7 @@ fun CellBalanceStatus(safePercentage: Float, hasCriticalCells: Boolean) {
                 Color(0xFFF44336) // 빨간색
             )
         }
+
         safePercentage >= 70 -> {
             Triple(
                 Icons.Default.CheckCircle,
@@ -177,27 +196,30 @@ fun CellBalanceStatus(safePercentage: Float, hasCriticalCells: Boolean) {
 }
 
 @Composable
-fun CellGrid(cells: List<CellData>) {
+fun CellGrid(cells: List<CellData>, isLoading: Boolean) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(10),
         modifier = Modifier.fillMaxSize()
     ) {
         items(cells.size) { index ->
-            CellBox(cell = cells[index])
+            CellBox(cell = cells[index], isLoading)
         }
     }
 }
 
 @Composable
-fun CellBox(cell: CellData) {
+fun CellBox(cell: CellData, isLoading: Boolean) {
     val showDialog = remember { mutableStateOf(false) }
     val voltageHistory = List(10) {
         Pair((15..60).random(), "2024-11-08 12:${10 + it} PM")
     }
 
     val isSafe = cell.voltageDeviation in 2.7f..3.3f
-    val backgroundColor = if (isSafe) Color(0xFF87CEEB).copy(alpha = 0.8f) else Color.Red.copy(alpha = 0.8f)
-    val borderColor = if (isSafe) Color(0xFF87CEEB).copy(alpha = 0.8f) else Color.Red.copy(alpha = 0.8f)
+
+    val backgroundColor = if (isLoading) Color(0xFFF0F0F0)
+    else if(isSafe) Color(0xFF87CEEB).copy(alpha = 0.8f)
+    else Color.Red.copy(alpha = 0.8f)
+    val borderColor = if ( isSafe || isLoading ) Color(0xFF87CEEB).copy(alpha = 0.8f) else Color.Red.copy(alpha = 0.8f)
 
     val voltageOpacity = remember { mutableStateOf(0.9f) }
 

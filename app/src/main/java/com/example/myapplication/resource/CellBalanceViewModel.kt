@@ -10,6 +10,10 @@ class CellBalanceViewModel : ViewModel() {
     private val _cells = MutableStateFlow<List<CellData>>(List(97) { idx -> CellData(index = idx, voltageDeviation = 0f) })
     val cells: StateFlow<List<CellData>> get() = _cells
 
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading: StateFlow<Boolean> get() = _isLoading // 외부엔 read-only
+
+
     private fun defaultCells(size: Int = 97): List<CellData> = List(size) { idx -> CellData(index = idx, voltageDeviation = 0f) }
 
     fun fetchCellData(deviceNumber: String, tenNumRange: IntRange) {
@@ -36,6 +40,8 @@ class CellBalanceViewModel : ViewModel() {
             } catch (e: Exception) {
                 e.printStackTrace()
                 _cells.value = defaultCells()
+            } finally {
+                _isLoading.value = false
             }
         }
     }
@@ -48,20 +54,12 @@ fun parseCellResponse(response: Map<String, Any>): List<CellData> {
         Log.d("CellResponse", "key=$key, value=$value")
         if (key.startsWith("cell_") && value is String) {
             val cellIndex = key.removePrefix("cell_").toIntOrNull() // "cell_00" -> 0
-//            cellIndex?.let {
-//                cellDataList.add(CellData(index = cellIndex, voltageDeviation = value.toFloat()))
-//            }
-            if (cellIndex == 24 ){
-                cellDataList.add(CellData(index = cellIndex, voltageDeviation = 4.6f ))
-            } else if ( cellIndex == 46 ){
-                cellDataList.add(CellData(index = cellIndex, voltageDeviation = 2.2f ))
-            } else if ( cellIndex == 66){
-                cellDataList.add(CellData(index = cellIndex, voltageDeviation = 4.8f ))
-            } else if ( cellIndex == 87 ){
-                cellDataList.add(CellData(index = cellIndex, voltageDeviation = 2.6f ))
-            } else if (cellIndex != null) {
-                cellDataList.add(CellData(index = cellIndex, voltageDeviation = 3.3f ))
+            cellIndex?.let {
+                cellDataList.add(CellData(index = cellIndex, voltageDeviation = value.toFloat()))
             }
+//            if (cellIndex != null) {
+//                cellDataList.add(CellData(index = cellIndex, voltageDeviation = 3.3f ))
+//            }
 
         }
     }

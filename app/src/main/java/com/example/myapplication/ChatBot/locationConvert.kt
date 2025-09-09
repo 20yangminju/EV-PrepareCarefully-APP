@@ -16,11 +16,14 @@ fun fetchNearbyRepairShops(
     onError: (String) -> Unit // 에러 처리 콜백 추가
 ) {
     val location = "$latitude,$longitude"
-    val radius = 1000 // 1km 반경
+    val radius = 10000 // 10km 반경
     val type = "car_repair"
     val apiKey = BuildConfig.GPS_API_KEY
 
-    gps.getNearbyPlaces(location, radius, type, apiKey).enqueue(object : Callback<PlacesResponse> {
+    val rankby = "distance"
+    val language = "ko"
+
+    gps.getNearbyPlaces(location, rankby, type, language, apiKey).enqueue(object : Callback<PlacesResponse> {
         override fun onResponse(call: Call<PlacesResponse>, response: Response<PlacesResponse>) {
             if (response.isSuccessful) {
                 response.body()?.results?.let{
@@ -33,7 +36,7 @@ fun fetchNearbyRepairShops(
                         Log.d("RepairShop", "No repair shops found in the area.")
                     }
                 }
-                val places = response.body()?.results ?: emptyList()
+                val places = response.body()?.results?.take(5) ?: emptyList()
 
                 onResult(places) // 성공 시 콜백 호출
             } else {

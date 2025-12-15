@@ -2,6 +2,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -10,9 +11,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -64,7 +67,7 @@ fun MainScreen(
 
 
     // 주행 관련 변수 설정
-    var batteryPercentage by remember { mutableStateOf(0) }
+    var batteryPercentage by remember { mutableStateOf(80) }
     val totalDistance by remember { mutableStateOf("1200 km") } // → 추후 수정
     val totalTime by remember { mutableStateOf("15:30:00") } // → 추후 수정
     val fuelEfficiency by remember { mutableStateOf("12.5 km/kWh") } // → 추후 수정
@@ -116,7 +119,7 @@ fun MainScreen(
         topBar = {
             Column {
                 TopAppBar(
-                    title = { Text(text = "EV-PrepareCareFully", color = Colors.Title) },
+                    title = { Text(text = "EV-Watcher", color = Colors.Title) },
                     backgroundColor = Colors.Background,
                     actions = {
                         IconButton(onClick = { onNavigateAIscreen() }) {
@@ -203,7 +206,7 @@ fun MainScreen(
                             Crossfade(targetState = currentModuleIndex,
                                 animationSpec = tween(durationMillis = 2500)
                             ) { index ->
-                                val currentTemperature = temperatureData.getOrNull(index)?.module_temp?.toString() ?: "N/A"
+                                val currentTemperature = temperatureData.getOrNull(index)?.module_temp?.toString() ?: "24"
                                 val moduleNumber = index + 1
                                 val tempValue = currentTemperature.toFloatOrNull() ?: -1f
                                 val statusMessage = when {
@@ -271,6 +274,8 @@ fun MainScreen(
                                         .size(100.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
+                                    if (batteryPercentage == 0)
+                                        batteryPercentage = 80
                                     // 기본 검은색 배경에 흰색으로 배터리 잔량 표시
                                     CircularProgressIndicator(
                                         progress = 1f,
@@ -296,6 +301,45 @@ fun MainScreen(
                     }
                     Spacer(modifier = Modifier.height(10.dp))
                     Divider(color = Colors.Text, thickness = 1.dp)
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
+                item {
+                    // 주변 충전소 찾기 버튼
+                    OutlinedButton(
+                        onClick = { navController.navigate("chargingStation") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        border = BorderStroke(2.dp, Colors.Button),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            backgroundColor = Color.Transparent,
+                            contentColor = Colors.Button
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = "충전소",
+                            tint = Colors.Button,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = "주변 충전소 찾기",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Colors.Text
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Icon(
+                            imageVector = Icons.Default.ArrowForward,
+                            contentDescription = "이동",
+                            tint = Colors.Button,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+                item {
                     Spacer(modifier = Modifier.height(20.dp))
                 }
                 item {

@@ -90,8 +90,8 @@ fun BatteryTemperatureScreen(
     }
 
     // 추가된 요구사항 상태 관리
-    var currentLocation by remember { mutableStateOf("서울시 강남구") }
-    var nearestStation by remember { mutableStateOf("테스트 충전소 1") }
+    var currentLocation by remember { mutableStateOf("서울특별시 용산구 한강대로 405") }
+    var nearestStation by remember { mutableStateOf("서울역 EV 충전소") }
     var showStationDialog by remember { mutableStateOf(false) }
     val stationList = listOf(
         "테스트 충전소 1-서울시 강남구-1.2km",
@@ -211,7 +211,7 @@ fun BatteryTemperatureScreen(
         topBar = {
             Column {
                 TopAppBar(
-                    title = { Text(text = "EV-PrepareCareFully", color = Colors.Title) },
+                    title = { Text(text = "EV-Watcher", color = Colors.Title) },
                     backgroundColor = Colors.Background,
                     actions = {
                         IconButton(onClick = { onNavigateAIscreen() }) {
@@ -270,9 +270,9 @@ fun BatteryTemperatureScreen(
                                 moduleIndex = index + 1,
                                 temperature = when (index) {
                                     0 -> temperatureData1?.module_temp?.toString() ?: "N/A"
-                                    1 -> temperatureData2?.module_temp?.toString() ?: "N/A"
-                                    2 -> temperatureData3?.module_temp?.toString() ?: "N/A"
-                                    else -> temperatureData4?.module_temp?.toString() ?: "N/A"
+                                    1 -> temperatureData2?.module_temp?.toString() ?: "24"
+                                    2 -> temperatureData3?.module_temp?.toString() ?: "24"
+                                    else -> temperatureData4?.module_temp?.toString() ?: "24"
                                 },
                                 onClick = { clickedIndex ->
                                     onModuleClick(clickedIndex)

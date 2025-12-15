@@ -20,10 +20,10 @@ fun TermsOfServiceScreen(navController: NavHostController) {
     // 더미 약관 내용
     val termsContent = """
         제1조 (목적)
-        본 약관은 EV-PrepareCareFully(이하 "서비스")의 이용과 관련하여 회사와 이용자 간의 권리, 의무 및 책임사항을 규정함을 목적으로 합니다.
+        본 약관은 EV-Watcher(이하 "서비스")의 이용과 관련하여 회사와 이용자 간의 권리, 의무 및 책임사항을 규정함을 목적으로 합니다.
 
         제2조 (정의)
-        1. "회사"란 EV-PrepareCareFully 서비스를 제공하는 주체를 의미합니다.
+        1. "회사"란 EV-Watcher 서비스를 제공하는 주체를 의미합니다.
         2. "이용자"란 본 약관에 따라 서비스를 이용하는 고객을 의미합니다.
 
         제3조 (서비스 제공 및 변경)

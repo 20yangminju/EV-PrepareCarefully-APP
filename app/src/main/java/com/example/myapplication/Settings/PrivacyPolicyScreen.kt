@@ -21,7 +21,7 @@ fun PrivacyPolicyScreen(navController: NavHostController) {
     val privacyPolicyContent = """
         제1조 (개인정보의 처리 목적)
         회사는 다음의 목적을 위하여 개인정보를 처리합니다. 처리된 개인정보는 다음 목적 이외의 용도로는 사용되지 않습니다.
-        1. 서비스 제공: EV-PrepareCareFully 서비스와 관련한 사용자 식별 및 인증
+        1. 서비스 제공: EV-Watcher 서비스와 관련한 사용자 식별 및 인증
         2. 고객 문의 대응: 고객의 문의사항에 신속하게 답변 제공
         3. 법적 의무 이행: 관련 법령에 따라 필요한 경우 정보 제출
 

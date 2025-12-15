@@ -56,7 +56,7 @@ fun CellBalanceScreen(
     val safePercentage = if (displayCells.isNotEmpty()) {
         displayCells.count { it.voltageDeviation <= 20 }.toFloat() / displayCells.size * 100f
     } else 0f
-    val hasCriticalCells = !isLoading && cells.any { it.voltageDeviation < 2f }
+    val hasCriticalCells = !isLoading && cells.any { it.voltageDeviation < 2.5f }
 
 
     val context = LocalContext.current
@@ -73,7 +73,7 @@ fun CellBalanceScreen(
         topBar = {
             Column {
                 TopAppBar(
-                    title = { Text(text = "EV-PrepareCareFully", color = Colors.Title) },
+                    title = { Text(text = "EV-Watcher", color = Colors.Title) },
                     backgroundColor = Colors.Background,
                     actions = {
                         IconButton(onClick = { onNavigateAIscreen() }) {
@@ -214,7 +214,7 @@ fun CellBox(cell: CellData, isLoading: Boolean) {
         Pair((15..60).random(), "2024-11-08 12:${10 + it} PM")
     }
 
-    val isSafe = cell.voltageDeviation in 2.7f..3.3f
+    val isSafe = cell.voltageDeviation in 2.7f..4.0f
 
     val backgroundColor = if (isLoading) Color(0xFFF0F0F0)
     else if(isSafe) Color(0xFF87CEEB).copy(alpha = 0.8f)

@@ -116,7 +116,7 @@ fun createNotification(context: Context, viewModel: NotificationViewModel, statu
 
     val notification = NotificationCompat.Builder(context, channelId)
         .setSmallIcon(R.drawable.baseline_warning_24) // 알림 앱 아이콘
-        .setContentTitle("EV-PrepareCareFully") // 앱 이름 설정
+        .setContentTitle("EV-Watcher") // 앱 이름 설정
         .setContentText(notificationText) // 임시 텍스트
         .setPriority(NotificationCompat.PRIORITY_HIGH) // 헤드업 알림이 뜨게끔 설정
         .setAutoCancel(true)

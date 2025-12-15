@@ -52,6 +52,17 @@ interface ApiService {
 
     @POST("find-charger")
     suspend fun find_charger(@Body chargeRequest: chargeRequest): chargeResponse
+
+    // TODO: 향후 추가 예정 - 충전소 안전 정보 API
+    // 충전소 안전 등급, 최근 점검일, 실시간 이용 가능 충전기 수 등을 조회
+    // @POST("charging-station/safety-info")
+    // suspend fun getChargingStationSafetyInfo(@Body request: ChargingStationSafetyRequest): ChargingStationSafetyResponse
+
+    // TODO: 향후 추가 예정 - 카카오 맵 API 연동
+    // 카카오 맵 API를 통해 주변 충전소 목록 조회 후 자체 DB 정보와 결합
+    // Retrofit 인스턴스를 별도로 생성하여 카카오 맵 API 호출
+    // Base URL: https://dapi.kakao.com/
+    // Endpoint: /v2/local/search/keyword.json?query=전기차충전소
 }
 
 

@@ -16,7 +16,7 @@ import com.example.myapplication.ui.theme.Colors // 사용자 정의 Colors impo
 @Composable
 fun VersionInfoScreen(navController: NavHostController) {
     // 임의의 데이터
-    val appName = "EV-PrepareCareFully"
+    val appName = "EV-Watcher"
     val version = "2.0.1"
     val lastUpdated = "2024-11-30"
 

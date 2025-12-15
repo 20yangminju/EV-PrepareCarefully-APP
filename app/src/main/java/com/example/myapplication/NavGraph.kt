@@ -5,6 +5,7 @@ package com.example.myapplication.navigation
 import BatteryTemperatureScreen
 import CellBalanceScreen
 import com.example.myapplication.ChatBot.ChatScreen
+import com.example.myapplication.ChargingStationScreen
 import LoginScreen
 import MainScreen
 import SettingsScreen
@@ -188,6 +189,15 @@ fun SetupNavGraph(navController: NavHostController,
                 onNavigateToPre = {
                     navController.popBackStack()
                 }
+            )
+        }
+        composable("chargingStation") {
+            ChargingStationScreen(
+                navController = navController,
+                onNavigateAIscreen = { navController.navigate("AIScreen") },
+                onNavigateToSettings = { navController.navigate("Setting") },
+                onNavigateToNotifications = { navController.navigate("AlarmScreen") },
+                notificationViewModel = notificationViewModel
             )
         }
     }

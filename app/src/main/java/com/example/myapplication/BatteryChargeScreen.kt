@@ -167,7 +167,7 @@ fun BatteryChargeScreen(navController: NavController,
         topBar = {
             Column {
                 TopAppBar(
-                    title = { Text(text = "EV-PrepareCareFully", color = Colors.Title) },
+                    title = { Text(text = "EV-Watcher", color = Colors.Title) },
                     backgroundColor = Colors.Background,
                     actions = {
                         IconButton(onClick = { onNavigateAIscreen() }) {
@@ -239,6 +239,8 @@ fun BatteryChargeScreen(navController: NavController,
                 }
                 item {
                     // 배터리 온도 측정 및 현재 배터리 충전량
+                    if (batteryPercentage == 0)
+                        batteryPercentage = 80
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
